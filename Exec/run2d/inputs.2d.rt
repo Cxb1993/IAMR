@@ -10,14 +10,14 @@
 max_step 		= 1000
 
 # Time at which calculation stops, if max_step is not reached first.
-stop_time 		= 2.5
+stop_time 		= 3.5355339059327378
 
-ns.do_vorticity_ref = 1
+ns.do_density_ref = 0
 
 #*******************************************************************************
 
 # Number of cells in each coordinate direction at the coarsest level
-amr.n_cell 		= 64  128
+amr.n_cell 		= 128 512
 amr.max_grid_size	= 32
 
 amr.grid_eff = 0.95
@@ -25,7 +25,7 @@ amr.grid_eff = 0.95
 #*******************************************************************************
 
 # Maximum level (defaults to 0 for single level calculation)
-amr.max_level		= 2 # maximum number of levels of refinement
+amr.max_level		= 1 # maximum number of levels of refinement
 
 #*******************************************************************************
 
@@ -50,7 +50,7 @@ amr.v                   = 1
 #*******************************************************************************
 
 # Interval (in number of coarse timesteps) between checkpoint(restart) files
-amr.check_int		= 50 
+amr.check_int		= 100
 
 #*******************************************************************************
 
@@ -70,7 +70,7 @@ ns.init_shrink          = 0.1  # factor which multiplies the very first time ste
 #*******************************************************************************
 
 # Viscosity coefficient 
-ns.vel_visc_coef        = 0.0
+ns.vel_visc_coef        = 0.001
 
 #*******************************************************************************
 
@@ -95,10 +95,10 @@ geometry.coord_sys   =  0
 #*******************************************************************************
 
 # Physical dimensions of the low end of the domain.
-geometry.prob_lo     =  0. 0. 
+geometry.prob_lo     =  -0.5 -2.0
 
 # Physical dimensions of the high end of the domain.
-geometry.prob_hi     =  0.5 1.0
+geometry.prob_hi     =  0.5 2.0
 
 #*******************************************************************************
 
@@ -119,8 +119,10 @@ ns.hi_bc             = 0 2
 
 #*******************************************************************************
 
-# For solver reasons, use multigrid iterations as the bottom solve.
-# mg.usecg = 1
+# Solver settings
+proj.use_mlmg_solver 	= 1
+mac.use_mlmg_solver 	= 1
+diffuse.use_mlmg_solver = 1
 
 #*******************************************************************************
 
@@ -131,5 +133,7 @@ amr.blocking_factor     = 4
 
 # Add vorticity to the variables in the plot files.
 amr.derive_plot_vars    = mag_vort   diveru   avg_pressure
+
+#amr.restart 			= chk01000
 
 #*******************************************************************************
