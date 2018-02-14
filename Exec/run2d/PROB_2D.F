@@ -59,7 +59,7 @@ c
      &                  velfact, probtype, randfact, bubgrad,
      &			rhozero, tempzero, c_d, r_d, grav_angle,
      &                  adv_dir, adv_vel, axis_dir, radvort,
-     &          lid_vel
+     &          lid_vel, in_vel
 #ifdef BL_DO_FLCT
      &                  ,forceInflow, numInflPlanesStore, strmwse_dir,
      $                  forceLo, forceHi, flct_file, turb_scale
@@ -220,6 +220,11 @@ c ::: -----------------------------------------------------------
       else if (probtype .eq. 10 .or. probtype .eq. 11 .or.
      &         probtype .eq. 12) then
          call initfromrest(lo,hi,nscal,
+     &                  vel,scal,DIMS(state),
+     &                      dx,xlo,xhi)
+
+      else if (probtype .eq. 13) then
+         call initdisplacement(lo,hi,nscal,
      &                  vel,scal,DIMS(state),
      &                      dx,xlo,xhi)
 
@@ -761,6 +766,51 @@ c     ::::: local variables
             vel(i,j,1) = 0.0d0
             vel(i,j,2) = 0.0d0
             scal(i,j,1) = 1.0d0
+            scal(i,j,2) = 0.0d0
+
+         end do
+      end do
+      
+      end
+      
+c
+c ::: -----------------------------------------------------------
+c ::: Initialise system from rest, but with an interface separating two
+c ::: fluids of different density. Introduced for displacement test case
+c
+      subroutine initdisplacement(lo,hi,nscal,
+     &                    vel,scal,DIMS(state),
+     &                        dx,xlo,xhi)
+
+      integer    nscal
+      integer    lo(SDIM), hi(SDIM)
+      integer    DIMDEC(state)
+      REAL_T     dx(SDIM)
+      REAL_T     xlo(SDIM), xhi(SDIM)
+      REAL_T     vel(DIMV(state),SDIM)
+      REAL_T    scal(DIMV(state),nscal)
+
+
+c     ::::: local variables
+      integer i, j
+      REAL_T hx, hy
+
+#include <probdata.H>
+
+      hx = dx(1)
+      hy = dx(2)
+
+      do j=lo(2),hi(2)
+         y = xlo(2) + hy*(float(j-lo(2)) + half)
+         do i=lo(1),hi(1)
+
+            vel(i,j,1) = 0.0d0
+            vel(i,j,2) = 0.0d0
+            if (y < 1.0) then 
+               scal(i,j,1) = 10.0d0
+            else
+               scal(i,j,1) = 1.0d0
+            end if
             scal(i,j,2) = 0.0d0
 
          end do
@@ -1904,7 +1954,12 @@ c
       if (bc(1,1).eq.EXT_DIR.and.ARG_L1(u).lt.domlo(1)) then
          do i = ARG_L1(u), domlo(1)-1
             do j = ARG_L2(u), ARG_H2(u)
-               u(i,j) = x_vel
+               if (probtype .eq. 11) then
+c ::: Displacement test case, constant velocity at inlet 
+                  u(i,j) = in_vel
+               else
+                  u(i,j) = x_vel
+               end if
             end do
          end do
       end if            
