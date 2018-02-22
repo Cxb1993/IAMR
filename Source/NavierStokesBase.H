@@ -363,7 +363,7 @@ protected:
     //
     // Update velocities (or momentum) after advection.
     //
-    void velocity_update (amrex::Real dt);
+    void velocity_update (amrex::Real dt, int iteration, int ncycle);
 
     void velocity_advection_update (amrex::Real dt);
 
@@ -446,7 +446,7 @@ protected:
     //
     virtual void sum_integrated_quantities () = 0;
 
-    virtual void velocity_diffusion_update (amrex::Real dt) = 0;
+    virtual void velocity_diffusion_update (amrex::Real dt, int iteration, int ncycle) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     //    NavierStokesBase protected static functions                         //

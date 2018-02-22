@@ -3511,7 +3511,7 @@ NavierStokesBase::velocity_advection (Real dt)
 //
 
 void
-NavierStokesBase::velocity_update (Real dt)
+NavierStokesBase::velocity_update (Real dt, int iteration, int ncycle)
 {
     BL_PROFILE("NavierStokesBase::velocity_update()");
 
@@ -3530,7 +3530,7 @@ NavierStokesBase::velocity_update (Real dt)
     velocity_advection_update(dt);
 
     if (!initial_iter)
-        velocity_diffusion_update(dt);
+        velocity_diffusion_update(dt, iteration, ncycle);
     else
         initial_velocity_diffusion_update(dt);
 

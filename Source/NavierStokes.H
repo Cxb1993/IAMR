@@ -148,7 +148,7 @@ protected:
     //
     virtual void sum_integrated_quantities () override;
     //
-    virtual void velocity_diffusion_update (amrex::Real dt) override;
+    virtual void velocity_diffusion_update (amrex::Real dt, int iteration, int ncycle) override;
 
     ////////////////////////////////////////////////////////////////////////////
     //    NavierStokes protected static functions                             //
