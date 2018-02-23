@@ -907,43 +907,45 @@ NavierStokes::velocity_diffusion_update (Real dt, int iteration, int ncycle)
         {
             Real viscTime = state[State_Type].prevTime();
             loc_viscn = fb_viscn.define(this);
+            //calcViscosity(viscTime, dt, iteration, ncycle);
             getViscosity(loc_viscn, viscTime);
 
             viscTime = state[State_Type].curTime();
             loc_viscnp1 = fb_viscnp1.define(this);
+            //calcViscosity(viscTime, dt, iteration, ncycle);
             getViscosity(loc_viscnp1, viscTime);
-        }
 
-        diffuse_velocity_setup(dt, delta_rhs, loc_viscn, loc_viscnp1);
+			diffuse_velocity_setup(dt, delta_rhs, loc_viscn, loc_viscnp1);
 
-        diffusion->diffuse_velocity(dt,be_cn_theta,get_rho_half_time(),rho_flag,
-                                    delta_rhs,loc_viscn,loc_viscnp1);
-
-        if (variable_vel_visc)
-        {
+			diffusion->diffuse_velocity(dt,be_cn_theta,get_rho_half_time(),rho_flag,
+										delta_rhs,loc_viscn,loc_viscnp1);
             // 
             // At this point, we have found an intermediate u* using an explicit computation of the
             // apparent viscosity based on u^n. In order to obtain a semi-implicit treatment of the
             // viscous coefficients, we re-calculate the curTime() viscosity and perform a second
             // viscous solve. 
             //
-
-            // Need: iteration, ncycle. 
+            // For calcViscosity, we need: int iteration, int ncycle. 
             //      Not available in velocity_update
             //      Available in advance
             //      ==> Pass downwards (TODO: find better fix)
-            Real viscTime = state[State_Type].curTime();
+			//
+			
             calcViscosity(viscTime, dt, iteration, ncycle);
-
-            loc_viscnp1 = fb_viscnp1.define(this);
             getViscosity(loc_viscnp1, viscTime);
 
-            diffuse_velocity_setup(dt, delta_rhs, loc_viscn, loc_viscnp1);
+			diffuse_velocity_setup(dt, delta_rhs, loc_viscn, loc_viscnp1);
 
             diffusion->diffuse_velocity(dt,be_cn_theta,get_rho_half_time(),rho_flag,
                                         delta_rhs,loc_viscn,loc_viscnp1);
         }
+		else
+		{
+			diffuse_velocity_setup(dt, delta_rhs, loc_viscn, loc_viscnp1);
 
+			diffusion->diffuse_velocity(dt,be_cn_theta,get_rho_half_time(),rho_flag,
+										delta_rhs,loc_viscn,loc_viscnp1);
+		}
 
         delete delta_rhs;
     }
@@ -2180,6 +2182,8 @@ NavierStokes::calcViscosity (const Real time,
                              const int  iteration,
                              const int  ncycle)
 {
+  if (verbose) amrex::Print() << "... calcViscosity\n";
+
     //
     // Select time level to work with (N or N+1)
     //
